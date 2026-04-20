@@ -1,0 +1,83 @@
+<mujoco model="jumping robot">
+
+<default>
+  <geom rgba=".8 .6 .4 1" friction="0.005 0.005 0.0001"/>
+  <joint damping="0.5"/>
+</default>
+
+  <option gravity = "0 0 -9.81" />
+
+  <asset>
+    <texture type="2d" name="groundplane" builtin="checker"
+             mark="edge" rgb1=".25 .25 .25" rgb2=".3 .3 .3"
+             markrgb=".8 .8 .8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane"
+              texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+  </asset>
+
+  <worldbody>
+    <geom type="plane" material="groundplane" size="5 5 0.1"/>
+    <light pos="0 1 1" dir="0 -1 -1" diffuse="1 1 1"/>
+
+    <body name="main_box" pos="0 0 1">
+      <joint name="slider_of_box" type="slide"/>
+      <geom type="box" size="0.25 0.03 0.03"/>
+
+      <body name="right_hip" pos="0.15 0 0">
+        <joint name="right_hip_joint" type="hinge" axis="0 1 0"/>
+        <geom type="capsule" size="0.01" fromto="0 0 0  0.2 0 -0.3"/>
+        <body name="right_knee" pos="0.2 0 -0.3">
+          <joint name="right_knee_joint" type="hinge" axis="0 1 0"/>
+          <geom type="capsule" size="0.01" fromto="0 0 0  -0.35 0 -0.4"/>
+          <body name="right_foot" pos="-0.35 0 -0.4">
+            <geom name="right_foot_pad" type="sphere" size="0.01"/>
+            <site name="right_foot_site" type="sphere" size="0.02"/>
+          </body>
+        </body>
+      </body>
+
+      <body name="left_hip" pos="-0.15 0 0">
+        <joint name="left_hip_joint" type="hinge" axis="0 1 0"/>
+        <geom type="capsule" size="0.01" fromto="0 0 0  -0.2 0 -0.3"/>
+        <body name="left_knee" pos="-0.2 0 -0.3">
+          <joint name="left_knee_joint" type="hinge" axis="0 1 0"/>
+          <geom type="capsule" size="0.01" fromto="0 0 0  0.35 0 -0.4"/>
+          <body name="left_foot" pos="0.35 0 -0.4">
+            <geom name="left_foot_pad" type="sphere" size="0.01"/>
+            <site name="left_foot_site" type="sphere" size="0.02"/>
+          </body>
+        </body>
+      </body>
+    </body>
+
+  </worldbody>
+
+  <actuator>
+    <general name="right_hip_motor" joint="right_hip_joint"
+             gaintype="fixed"  gainprm="30"
+             biastype="affine" biasprm="0 -45 -2.643"
+             forcelimited="true" forcerange="-74 74"
+             ctrlrange="-1.0 1.0"/>
+    <general name="left_hip_motor"  joint="left_hip_joint"
+             gaintype="fixed"  gainprm="30"
+             biastype="affine" biasprm="0 -45 -2.643"
+             forcelimited="true" forcerange="-74 74"
+             ctrlrange="-1.0 1.0"/>
+  </actuator>
+
+  <equality>
+    <connect site1="right_foot_site" site2="left_foot_site"/>
+  </equality>
+
+  <sensor>
+    <touch name="right_foot_touch" site="right_foot_site"/>
+    <touch name="left_foot_touch"  site="left_foot_site"/>
+    <jointvel name="main_box_vz"   joint="slider_of_box"/>
+
+    <actuatorfrc name="right_hip_torque" actuator="right_hip_motor"/>
+    <actuatorvel name="right_hip_omega"  actuator="right_hip_motor"/>
+    <actuatorfrc name="left_hip_torque"  actuator="left_hip_motor"/>
+    <actuatorvel name="left_hip_omega"   actuator="left_hip_motor"/>
+  </sensor>
+
+</mujoco>
