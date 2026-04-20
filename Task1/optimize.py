@@ -277,14 +277,13 @@ def run_optimization(pop_size=POP_SIZE, n_gen=N_GEN, seed=0, use_pool=True):
     return res
 
 
-# === ГРАФИКИ ===
+# Графики
 def plot_results(log_xlsx, plots_dir):
     os.makedirs(plots_dir, exist_ok=True)
     df = pd.read_excel(log_xlsx, sheet_name="log")
     # отбрасываем штрафные (не было отрыва)
     df_ok = df[df["energy"] < PENALTY_ENERGY / 2].copy()
 
-    # --- 1. Pareto front scatter ---
     last_gen = df["gen"].max()
     last = df[df["gen"] == last_gen]
     pf = last[last["is_pareto"]]
@@ -300,7 +299,6 @@ def plot_results(log_xlsx, plots_dir):
     plt.savefig(os.path.join(plots_dir, "pareto_front.png"), dpi=120)
     plt.close()
 
-    # --- 2. Best v_takeoff over generations ---
     by_gen_v = df_ok.groupby("gen")["v_takeoff"].max()
     plt.figure(figsize=(7, 4))
     plt.plot(by_gen_v.index, by_gen_v.values, marker="o", ms=3)
@@ -312,7 +310,6 @@ def plot_results(log_xlsx, plots_dir):
     plt.savefig(os.path.join(plots_dir, "convergence_v.png"), dpi=120)
     plt.close()
 
-    # --- 3. Best energy over generations ---
     by_gen_e = df_ok.groupby("gen")["energy"].min()
     plt.figure(figsize=(7, 4))
     plt.plot(by_gen_e.index, by_gen_e.values, marker="o", ms=3, color="tab:orange")
@@ -324,7 +321,6 @@ def plot_results(log_xlsx, plots_dir):
     plt.savefig(os.path.join(plots_dir, "convergence_energy.png"), dpi=120)
     plt.close()
 
-    # --- 4. Heatmap v_takeoff(L1, L2) при X ≈ median ---
     x_med = df_ok["X_mm"].median()
     band = df_ok[np.abs(df_ok["X_mm"] - x_med) <= 15.0]
     if len(band) >= 10:
